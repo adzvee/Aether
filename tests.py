@@ -19,22 +19,39 @@ def test_mood(mood, note):
 
         if response.status_code == 200:
             data = response.json()
-            print(f"Response Time: {round(end_time - start_time, 2)}s")
-            print(f"QUOTE: \"{data['quote']}\" - {data['author']}")
+            duration = round(end_time - start_time, 2)
+            print(f"Response Time: {duration}s")
+            print(f"QUOTE: \"{data.get('quote')}\"")
+            print(f"AUTHOR: {data.get('author')}")
             print("ACTIVITIES:")
-            for act in data['activities']:
-                # Verify that our 'music_suggestion' logic is working locally
-                print(f"- {act['title']} (Type: {act.get('type')})")
+            for act in data.get('activities', []):
+                print(f"  - {act['title']} [{act.get('type')}]")
+
+            # Validation Check
+            if data.get('author') and data.get('quote') and data.get('author') in data.get('quote'):
+                print("WARNING: Author name detected inside the quote string!")
+
         else:
             print(f"Error {response.status_code}: {response.text}")
     except Exception as e:
         print(f"Connection failed: {e}")
 
-# Scenario A
-test_mood("Drained", "Stayed up until 3am studying for my midterm.")
 
-print("\n[Local Gap] Waiting 2 seconds...")
-time.sleep(2)
+# Tests Suite
 
-# Scenario B
-test_mood("Nervous", "I have a big presentation today.")
+scenarios = [
+    ("Drained", "Finals week is crushing me."),
+    ("Nervous", "Interviewing for an internship in 10 minutes."),
+    ("Overwhelmed", "I have 5 assignments due and my room is a mess."),
+    ("Sad", "Feeling a bit lonely tonight."),
+    ("Excited", "I just finished my first full-stack app!")
+]
+
+print("Starting Stress Test for Ollama Backend...")
+
+for mood, note in scenarios:
+    test_mood(mood, note)
+    # Small gap to let the CPU breathe between generations
+    time.sleep(1)
+
+print("\nAll tests complete.")

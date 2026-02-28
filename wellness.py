@@ -27,22 +27,27 @@ class MoodLog(db.Model):
 with app.app_context():
     db.create_all()
 
+# UPDATED: Added strict formatting rules to prevent double authors and repeats
 SYSTEM_PROMPT = """You are a warm, supportive wellness companion for students.
 The user will provide their current mood and an optional personal note.
+
 Respond with ONLY valid JSON in this exact format:
 {
-  "quote": "A short grounded quote from a real person. No clichés.",
+  "quote": "The quote text only",
   "author": "Author Name",
   "activities": [
     {"title": "Activity Title", "description": "One sentence description"}
   ]
 }
+
 Rules:
-- Quote must be from a real author, artist, or philosopher. No clichés like warrior or shine.
-- Suggest exactly 3 activities that are specific, actionable, and realistic for a student right now.
-- Only suggest music as an activity for: Sad, Drained, Excited, Determined. Never for Overwhelmed or Frustrated or Nervous or Okay.
+- QUOTE FIELD: Provide ONLY the text of the quote. Do NOT include the author's name or dashes inside this string.
+- AUTHOR FIELD: Provide only the name of the author.
+- VARIETY: You must provide a unique quote for every request. Never repeat the same quote twice.
+- Suggest exactly 3 activities that are specific, actionable, and realistic for a student.
+- Only suggest music for: Sad, Drained, Excited, Determined. Never for Overwhelmed, Frustrated, Nervous, or Okay.
 - If a personal note was provided, reference it subtly.
-- Tone must be gentle, human, and encouraging. Never clinical or generic."""
+- Tone must be gentle, human, and encouraging. No clichés."""
 
 @app.route('/api/get_recommendations', methods=['POST'])
 def get_recommendations():
@@ -53,16 +58,19 @@ def get_recommendations():
     user_prompt = f"The user is feeling: {mood}. Personal note: {note if note else 'No note provided.'}"
 
     try:
-        # Calling Ollama locally with llama3.2
+        # UPDATED: Added options (temperature) to force variety and creativity
         response = ollama.chat(
             model='llama3.2',
             messages=[
                 {'role': 'system', 'content': SYSTEM_PROMPT},
                 {'role': 'user', 'content': user_prompt},
             ],
-            format='json' # This tells Llama to output structured JSON
+            format='json',
+            options={
+                'temperature': 0.8,  # Higher value = more variety/creativity
+                'num_predict': 400    # Prevents the model from cutting off early
+            }
         )
-
 
         response_text = response['message']['content']
         response_data = json.loads(response_text)
