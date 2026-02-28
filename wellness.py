@@ -132,7 +132,6 @@ def get_history():
 @app.route('/')
 def serve_index():
     return render_template('index.html')
-``` [cite: 2026-02-28]
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
