@@ -5,11 +5,12 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+from flask import render_template
 import ollama
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='frontend', static_url_path='')
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
 # Database Setup
@@ -27,9 +28,9 @@ class MoodLog(db.Model):
 with app.app_context():
     db.create_all()
 
-# UPDATED: Added strict formatting rules to prevent double authors and repeats
-SYSTEM_PROMPT = """You are a warm, supportive wellness companion for students.
-The user will provide their current mood and an optional personal note.
+# UPDATED: Added strict formatting rules
+SYSTEM_PROMPT = """You are a minimalist, empathetic wellness coach for students. 
+You must match the quote's THEME to the user's specific NOTE and MOOD.
 
 Respond with ONLY valid JSON in this exact format:
 {
@@ -40,14 +41,22 @@ Respond with ONLY valid JSON in this exact format:
   ]
 }
 
-Rules:
-- QUOTE FIELD: Provide ONLY the text of the quote. Do NOT include the author's name or dashes inside this string.
-- AUTHOR FIELD: Provide only the name of the author.
-- VARIETY: You must provide a unique quote for every request. Never repeat the same quote twice.
-- Suggest exactly 3 activities that are specific, actionable, and realistic for a student.
-- Only suggest music for: Sad, Drained, Excited, Determined. Never for Overwhelmed, Frustrated, Nervous, or Okay.
-- If a personal note was provided, reference it subtly.
-- Tone must be gentle, human, and encouraging. No clichés."""
+EXAMPLES OF CORRECT THEME MATCHING:
+- Note: "Busload of work/busy" -> Theme: Focus/Patience -> Quote: "One by one, all things are done."
+- Note: "Failed/Mistake" -> Theme: Growth -> Quote: "Mistakes are the portals of discovery."
+- Note: "Tired/Burnt out" -> Theme: Permission to rest -> Quote: "Rest is not idleness."
+
+STRICT NEGATIVE CONSTRAINTS:
+1. NEVER use Zig Ziglar or the quote: "You don't have to be great to start..."
+2. NEVER use: "Be the change you wish to see" or "Well-behaved women seldom make history."
+3. NEVER use any quote containing the word "journey", "warrior", or "shine".
+4. Use ONLY real philosophers, poets, or scientists. No generic "inspirational" clichés.
+
+ACTIVITY RULES:
+- Suggest exactly 3 activities that are specific and realistic for a student.
+- Only suggest music for: Sad, Drained, Excited, Determined.
+- NEVER suggest music for: Overwhelmed, Frustrated, Nervous, or Okay.
+- Reference the user's personal note subtly in the descriptions."""
 
 @app.route('/api/get_recommendations', methods=['POST'])
 def get_recommendations():
@@ -122,7 +131,8 @@ def get_history():
 
 @app.route('/')
 def serve_index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return render_template('index.html')
+``` [cite: 2026-02-28]
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
