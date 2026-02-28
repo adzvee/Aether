@@ -1,7 +1,32 @@
 const API_BASE = window.location.protocol.startsWith("http")
   ? `${window.location.origin}/api`
   : "http://127.0.0.1:5000/api";
+
 const moods = ["Sad", "Drained", "Excited", "Determined", "Overwhelmed", "Frustrated", "Nervous", "Okay"];
+
+const moodBaseClasses = [
+  "rounded-xl",
+  "border",
+  "border-slate-200",
+  "bg-white",
+  "px-3",
+  "py-2",
+  "text-sm",
+  "font-semibold",
+  "text-slate-700",
+  "transition",
+  "hover:border-teal-300/50",
+  "hover:bg-teal-50",
+  "hover:text-teal-700"
+];
+
+const moodActiveClasses = [
+  "border-teal-300",
+  "bg-teal-50",
+  "text-teal-700",
+  "shadow",
+  "shadow-teal-100"
+];
 
 let selectedMood = "";
 let selectedAfterMood = "";
@@ -20,7 +45,16 @@ const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
 
 function setStatus(message, isError = false) {
   statusText.textContent = message;
-  statusText.style.color = isError ? "#9f2f2f" : "var(--ink-soft)";
+  statusText.classList.toggle("text-rose-600", isError);
+  statusText.classList.toggle("text-slate-500", !isError);
+}
+
+function setMoodSelected(container, selectedButton) {
+  const pills = container.querySelectorAll("button");
+  pills.forEach((pill) => {
+    pill.classList.remove(...moodActiveClasses);
+  });
+  selectedButton.classList.add(...moodActiveClasses);
 }
 
 function createMoodPills(container, onSelect) {
@@ -28,12 +62,10 @@ function createMoodPills(container, onSelect) {
   moods.forEach((mood) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "mood-pill";
+    button.classList.add(...moodBaseClasses);
     button.textContent = mood;
     button.addEventListener("click", () => {
-      const pills = container.querySelectorAll(".mood-pill");
-      pills.forEach((pill) => pill.classList.remove("active"));
-      button.classList.add("active");
+      setMoodSelected(container, button);
       onSelect(mood);
     });
     container.appendChild(button);
@@ -43,18 +75,18 @@ function createMoodPills(container, onSelect) {
 function renderRecommendations(data) {
   quoteCard.classList.remove("hidden");
   quoteCard.innerHTML = `
-    <p>"${data.quote}"</p>
-    <p class="author">- ${data.author}</p>
+    <p class="text-sm leading-relaxed text-slate-700">"${data.quote}"</p>
+    <p class="mt-2 text-sm font-semibold text-teal-700">- ${data.author}</p>
   `;
 
   activityList.innerHTML = "";
   (data.activities || []).forEach((activity) => {
     const card = document.createElement("article");
-    card.className = "activity";
+    card.className = "rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50/40";
     card.innerHTML = `
-      <h4>${activity.title}</h4>
-      <p>${activity.description}</p>
-      ${activity.type === "music_suggestion" ? '<span class="badge">Music suggestion</span>' : ""}
+      <h4 class="font-display text-lg font-semibold text-slate-900">${activity.title}</h4>
+      <p class="mt-1 text-sm leading-relaxed text-slate-600">${activity.description}</p>
+      ${activity.type === "music_suggestion" ? '<span class="mt-3 inline-flex rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">Music suggestion</span>' : ""}
     `;
     activityList.appendChild(card);
   });
@@ -89,22 +121,22 @@ async function fetchHistory() {
     historyList.innerHTML = "";
 
     if (!logs.length) {
-      historyList.innerHTML = "<p>No mood history yet.</p>";
+      historyList.innerHTML = "<p class=\"rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500\">No mood history yet.</p>";
       return;
     }
 
     logs.forEach((log) => {
       const item = document.createElement("article");
-      item.className = "history-item";
+      item.className = "rounded-2xl border border-slate-200 bg-white p-4";
       item.innerHTML = `
-        <p><strong>${log.mood_before}</strong> -> ${log.mood_after || "(pending)"}</p>
-        <p>${log.note || "No note"}</p>
-        <p>${formatDate(log.timestamp)}</p>
+        <p class="text-sm text-slate-700"><strong class="font-semibold text-slate-900">${log.mood_before}</strong> -> ${log.mood_after || "(pending)"}</p>
+        <p class="mt-1 text-sm text-slate-600">${log.note || "No note"}</p>
+        <p class="mt-2 text-xs uppercase tracking-wide text-slate-500">${formatDate(log.timestamp)}</p>
       `;
       historyList.appendChild(item);
     });
   } catch (error) {
-    historyList.innerHTML = `<p>Could not load history: ${error.message}</p>`;
+    historyList.innerHTML = `<p class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">Could not load history: ${error.message}</p>`;
   }
 }
 
