@@ -4,34 +4,10 @@ const API_BASE = window.location.protocol.startsWith("http")
 
 const moods = ["Sad", "Drained", "Excited", "Determined", "Overwhelmed", "Frustrated", "Nervous", "Okay"];
 
-const moodBaseClasses = [
-  "rounded-xl",
-  "border",
-  "border-slate-200",
-  "bg-white",
-  "px-3",
-  "py-2",
-  "text-sm",
-  "font-semibold",
-  "text-slate-700",
-  "transition",
-  "hover:border-teal-300/50",
-  "hover:bg-teal-50",
-  "hover:text-teal-700"
-];
-
-const moodActiveClasses = [
-  "border-teal-300",
-  "bg-teal-50",
-  "text-teal-700",
-  "shadow",
-  "shadow-teal-100"
-];
-
 let selectedMood = "";
-let selectedAfterMood = "";
 let currentLogId = null;
 
+// 1. SELECTORS
 const moodChoices = document.getElementById("moodChoices");
 const afterMoodChoices = document.getElementById("afterMoodChoices");
 const noteInput = document.getElementById("noteInput");
@@ -43,50 +19,53 @@ const afterMoodSection = document.getElementById("afterMoodSection");
 const historyList = document.getElementById("historyList");
 const refreshHistoryBtn = document.getElementById("refreshHistoryBtn");
 
-function setStatus(message, isError = false) {
-  statusText.textContent = message;
-  statusText.classList.toggle("text-rose-600", isError);
-  statusText.classList.toggle("text-slate-500", !isError);
-}
-
-function setMoodSelected(container, selectedButton) {
-  const pills = container.querySelectorAll("button");
-  pills.forEach((pill) => {
-    pill.classList.remove(...moodActiveClasses);
-  });
-  selectedButton.classList.add(...moodActiveClasses);
-}
-
+// 2. MOOD PILL CREATION (Matches your .mood-pill CSS)
 function createMoodPills(container, onSelect) {
   container.innerHTML = "";
   moods.forEach((mood) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.classList.add(...moodBaseClasses);
+    button.className = "mood-pill"; // Matches CSS
     button.textContent = mood;
     button.addEventListener("click", () => {
-      setMoodSelected(container, button);
+      container.querySelectorAll(".mood-pill").forEach(p => p.classList.remove("active"));
+      button.classList.add("active");
       onSelect(mood);
     });
     container.appendChild(button);
   });
 }
 
+// 3. RECOMMENDATIONS & ILLUSTRATIONS (Matches your .activity CSS)
 function renderRecommendations(data) {
   quoteCard.classList.remove("hidden");
   quoteCard.innerHTML = `
-    <p class="text-sm leading-relaxed text-slate-700">"${data.quote}"</p>
-    <p class="mt-2 text-sm font-semibold text-teal-700">- ${data.author}</p>
+    <p>"${data.quote}"</p>
+    <div class="author">- ${data.author}</div>
   `;
 
   activityList.innerHTML = "";
   (data.activities || []).forEach((activity) => {
+    let imgName = "undraw_relaxing-outdoor.svg"; // Fallback
+    const title = activity.title.toLowerCase();
+
+    // Mapping keywords to your static/assets/illustrations folder
+    if (title.includes("yoga") || title.includes("stretch")) imgName = "undraw_yoga_i399.svg";
+    else if (title.includes("music") || title.includes("listen")) imgName = "undraw_dua_lipa_bc8o.svg";
+    else if (title.includes("walk") || title.includes("park")) imgName = "undraw_a-day-at-the-park.svg";
+    else if (title.includes("write") || title.includes("journal")) imgName = "undraw_writing-down.svg";
+    else if (title.includes("call") || title.includes("friend")) imgName = "undraw_calling_ieh0.svg";
+    else if (title.includes("book") || title.includes("read")) imgName = "undraw_book-lover_m9n3.svg";
+    else if (title.includes("game")) imgName = "undraw_video-games_itxa.svg";
+    else if (title.includes("coffee") || title.includes("drink")) imgName = "undraw_drink-coffee_q0ey.svg";
+
     const card = document.createElement("article");
-    card.className = "rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-teal-300 hover:bg-teal-50/40";
+    card.className = "activity"; // Matches CSS
     card.innerHTML = `
-      <h4 class="font-display text-lg font-semibold text-slate-900">${activity.title}</h4>
-      <p class="mt-1 text-sm leading-relaxed text-slate-600">${activity.description}</p>
-      ${activity.type === "music_suggestion" ? '<span class="mt-3 inline-flex rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-teal-700">Music suggestion</span>' : ""}
+      <img src="/static/assets/illustrations/${imgName}" alt="Illustration">
+      <h4>${activity.title}</h4>
+      <p>${activity.description}</p>
+      ${activity.type === "music_suggestion" ? '<span class="badge">Music Suggestion</span>' : ""}
     `;
     activityList.appendChild(card);
   });
@@ -94,147 +73,85 @@ function renderRecommendations(data) {
   afterMoodSection.classList.remove("hidden");
 }
 
-function formatDate(isoDate) {
-  if (!isoDate) {
-    return "Unknown";
-  }
-
-  const date = new Date(isoDate);
-  if (Number.isNaN(date.getTime())) {
-    return isoDate;
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(date);
-}
-
-async function fetchHistory() {
-  try {
-    const response = await fetch(`${API_BASE}/history`);
-    if (!response.ok) {
-      throw new Error("Failed to load history");
-    }
-
-    const logs = await response.json();
-    historyList.innerHTML = "";
-
-    if (!logs.length) {
-      historyList.innerHTML = "<p class=\"rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500\">No mood history yet.</p>";
-      return;
-    }
-
-    logs.forEach((log) => {
-      const item = document.createElement("article");
-      item.className = "rounded-2xl border border-slate-200 bg-white p-4";
-      item.innerHTML = `
-        <p class="text-sm text-slate-700"><strong class="font-semibold text-slate-900">${log.mood_before}</strong> -> ${log.mood_after || "(pending)"}</p>
-        <p class="mt-1 text-sm text-slate-600">${log.note || "No note"}</p>
-        <p class="mt-2 text-xs uppercase tracking-wide text-slate-500">${formatDate(log.timestamp)}</p>
-      `;
-      historyList.appendChild(item);
-    });
-  } catch (error) {
-    historyList.innerHTML = `<p class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">Could not load history: ${error.message}</p>`;
-  }
-}
-
-async function saveInitialLog(mood, note) {
-  const response = await fetch(`${API_BASE}/logs`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mood_before: mood, note })
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to save initial log");
-  }
-
-  const data = await response.json();
-  return data.id;
-}
-
-async function updateAfterMood(logId, mood) {
-  const response = await fetch(`${API_BASE}/logs/${logId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mood_after: mood })
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to update mood");
-  }
-}
-
-async function getRecommendations(mood, note) {
-  const response = await fetch(`${API_BASE}/get_recommendations`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mood, note })
-  });
-
-  if (!response.ok) {
-    let message = "Failed to get recommendations";
-    try {
-      const payload = await response.json();
-      message = payload.error || message;
-    } catch {
-      // Keep default message when backend doesn't return JSON.
-    }
-    throw new Error(message);
-  }
-
-  return response.json();
-}
-
+// 4. API CALLS
 async function onGenerate() {
   if (!selectedMood) {
-    setStatus("Select a mood before requesting recommendations.", true);
+    statusText.textContent = "Please select a mood first.";
     return;
   }
 
-  const note = noteInput.value.trim();
-
   try {
-    setStatus("Saving mood and getting recommendations...");
     generateBtn.disabled = true;
+    statusText.textContent = "Consulting Aether...";
 
-    currentLogId = await saveInitialLog(selectedMood, note);
-    const recData = await getRecommendations(selectedMood, note);
-    renderRecommendations(recData);
+    // Save Log
+    const logRes = await fetch(`${API_BASE}/logs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood_before: selectedMood, note: noteInput.value })
+    });
+    const logData = await logRes.json();
+    currentLogId = logData.id;
 
-    setStatus("Recommendations are ready.");
-    await fetchHistory();
-  } catch (error) {
-    setStatus(error.message, true);
+    // Get Recs
+    const res = await fetch(`${API_BASE}/get_recommendations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mood: selectedMood, note: noteInput.value })
+    });
+    const data = await res.json();
+
+    renderRecommendations(data);
+    statusText.textContent = "";
+    fetchHistory();
+  } catch (e) {
+    statusText.textContent = "Connection error. Is the server running?";
   } finally {
     generateBtn.disabled = false;
   }
 }
 
-async function onAfterMoodSelected(mood) {
-  selectedAfterMood = mood;
-
-  if (!currentLogId) {
-    return;
-  }
-
-  try {
-    await updateAfterMood(currentLogId, selectedAfterMood);
-    setStatus(`Saved your follow-up mood: ${selectedAfterMood}.`);
-    await fetchHistory();
-  } catch (error) {
-    setStatus(error.message, true);
-  }
+async function fetchHistory() {
+  const res = await fetch(`${API_BASE}/history`);
+  const logs = await res.json();
+  historyList.innerHTML = "";
+  logs.forEach(log => {
+    const item = document.createElement("div");
+    item.className = "history-item"; // Matches CSS
+    item.innerHTML = `<p><strong>${log.mood_before}</strong> → ${log.mood_after || '...'}</p><p class="subtitle">${log.note || ""}</p>`;
+    historyList.appendChild(item);
+  });
 }
 
+// 5. INITIALIZATION
 generateBtn.addEventListener("click", onGenerate);
-refreshHistoryBtn.addEventListener("click", fetchHistory);
-
-createMoodPills(moodChoices, (mood) => {
-  selectedMood = mood;
+createMoodPills(moodChoices, (m) => selectedMood = m);
+createMoodPills(afterMoodChoices, async (m) => {
+    if (currentLogId) {
+        await fetch(`${API_BASE}/logs/${currentLogId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mood_after: m })
+        });
+        fetchHistory();
+    }
 });
-
-createMoodPills(afterMoodChoices, onAfterMoodSelected);
 fetchHistory();
+
+// --- SPLASH SCREEN LOGIC ---
+window.addEventListener('load', () => {
+    const splash = document.getElementById('splashScreen');
+    const mainApp = document.getElementById('mainApp');
+
+    // Wait 2 seconds so the user can actually see the "Aether" branding
+    setTimeout(() => {
+        if (splash) {
+            splash.style.opacity = '0';
+            // Wait for the fade-out transition to finish before removing from display
+            setTimeout(() => {
+                splash.style.display = 'none';
+                if (mainApp) mainApp.classList.replace('opacity-0', 'opacity-100');
+            }, 1000);
+        }
+    }, 2000);
+});
