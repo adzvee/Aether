@@ -1,0 +1,236 @@
+:root {
+  --bg-1: #f7f4ef;
+  --bg-2: #e8f0ec;
+  --ink: #1f2520;
+  --ink-soft: #57625a;
+  --accent: #c7562a;
+  --accent-soft: #f4dfd5;
+  --card: rgba(255, 255, 255, 0.82);
+  --line: rgba(31, 37, 32, 0.12);
+  --success: #2c7a56;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Manrope", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 15% 20%, #fff1d9 0%, transparent 40%),
+    radial-gradient(circle at 80% 5%, #d9ece3 0%, transparent 35%),
+    linear-gradient(140deg, var(--bg-1), var(--bg-2));
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(0deg, transparent 40%, rgba(255, 255, 255, 0.15) 100%);
+}
+
+.app-shell {
+  width: min(1000px, 92vw);
+  margin: 2.2rem auto 3rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.subtitle {
+  max-width: 60ch;
+  color: var(--ink-soft);
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(31, 37, 32, 0.05);
+  animation: reveal 420ms ease both;
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2, h3 {
+  margin-top: 0;
+  font-family: "Fraunces", serif;
+}
+
+label {
+  display: block;
+  margin: 0.8rem 0 0.4rem;
+  font-weight: 700;
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem;
+  resize: vertical;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.68rem 1.05rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn.primary {
+  margin-top: 0.8rem;
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn.ghost {
+  border-color: var(--line);
+  background: transparent;
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.mood-pill {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 140ms ease;
+}
+
+.mood-pill.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: #6a2811;
+}
+
+.status {
+  min-height: 1.5rem;
+  margin-bottom: 0;
+  color: var(--ink-soft);
+}
+
+.quote-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem;
+  background: #fffef9;
+}
+
+.quote-card p {
+  margin: 0;
+}
+
+.quote-card .author {
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+}
+
+.activity-list {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.activity {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem;
+  background: #fff;
+}
+
+.activity h4 {
+  margin: 0 0 0.35rem;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--success);
+  background: #e5f5ed;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.after-mood {
+  margin-top: 1rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+
+.history-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.history-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 0.7rem;
+}
+
+.history-item p {
+  margin: 0.15rem 0;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero,
+  .history-panel {
+    grid-column: 1 / -1;
+  }
+}

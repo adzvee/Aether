@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aether Wellness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">Student Wellness Companion</p>
+      <h1>Aether Check-In</h1>
+      <p class="subtitle">Log how you feel, get focused recommendations, and track your mood arc over time.</p>
+    </header>
+
+    <section class="panel input-panel">
+      <h2>How are you feeling right now?</h2>
+      <div id="moodChoices" class="mood-grid"></div>
+
+      <label for="noteInput">Optional note</label>
+      <textarea id="noteInput" rows="3" placeholder="What is driving this mood today?"></textarea>
+
+      <button id="generateBtn" class="btn primary">Get Recommendations</button>
+      <p id="statusText" class="status"></p>
+    </section>
+
+    <section class="panel recommendations-panel">
+      <div class="panel-head">
+        <h2>Your Recommendations</h2>
+        <button id="refreshHistoryBtn" class="btn ghost">Refresh History</button>
+      </div>
+      <article id="quoteCard" class="quote-card hidden"></article>
+      <div id="activityList" class="activity-list"></div>
+
+      <div id="afterMoodSection" class="after-mood hidden">
+        <h3>How do you feel after trying one activity?</h3>
+        <div id="afterMoodChoices" class="mood-grid"></div>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <h2>Mood History</h2>
+      <div id="historyList" class="history-list"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
