@@ -1,70 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aether Wellness</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aether Wellness</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        /* Surgical CSS addition to handle the 2+1 activity card layout */
+        .activity-centering-container {
+            display: flex !important;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .activity-card {
+            flex: 1 1 350px;
+            max-width: 450px;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-stone-50 font-body text-slate-800 antialiased">
-
-  <div id="splashScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white transition-opacity duration-1000">
-    <h1 class="font-display text-6xl font-bold tracking-tighter text-teal-600 animate-pulse">Aether</h1>
-    <p class="mt-4 text-slate-400 tracking-widest uppercase text-xs font-semibold">Finding your calm</p>
-  </div>
-
-  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-    <div class="absolute -top-28 -left-24 h-72 w-72 rounded-full bg-teal-200/45 blur-3xl"></div>
-    <div class="absolute top-24 right-0 h-80 w-80 rounded-full bg-sky-200/35 blur-3xl"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.65),transparent_62%)]"></div>
-  </div>
-
-  <main id="mainApp" class="opacity-0 transition-opacity duration-700 mx-auto grid w-[min(1100px,92vw)] grid-cols-1 gap-6 py-10 lg:grid-cols-12">
-
-    <header class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/85 p-8 shadow-xl backdrop-blur lg:col-span-5">
-      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Student Wellness Companion</p>
-      <h1 class="mt-2 font-display text-5xl font-bold tracking-tight text-slate-900">Aether Check-In</h1>
-      <p class="mt-4 text-slate-600">Log how you feel and get 3 custom activities.</p>
-      <div class="mt-6 flex flex-wrap gap-2">
-        <span class="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">Daily check-ins</span>
-        <span class="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">Actionable steps</span>
-      </div>
-    </header>
-
-    <section class="rounded-3xl border border-slate-200 bg-white/85 p-8 shadow-xl backdrop-blur lg:col-span-7">
-      <h2 class="font-display text-2xl font-semibold text-slate-900">How are you feeling right now?</h2>
-      <div id="moodChoices" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
-
-      <textarea id="noteInput" rows="3" class="mt-6 w-full rounded-2xl border border-slate-200 p-4 outline-none focus:ring-2 focus:ring-teal-200" placeholder="Optional: What's on your mind?"></textarea>
-
-      <button id="generateBtn" class="mt-6 w-full rounded-full bg-slate-900 py-4 text-white font-bold hover:bg-slate-800 transition shadow-lg">Get Recommendations</button>
-    </section>
-
-    <section id="quoteSection" class="hidden perspective-1000 min-h-[350px] lg:col-span-12">
-      <div id="flipCard" class="relative w-full h-full transition-transform duration-700 transform-style-3d cursor-pointer min-h-[300px]">
-        <div class="absolute inset-0 backface-hidden flex flex-col items-center justify-center bg-gradient-to-br from-teal-500 to-sky-600 rounded-3xl shadow-xl p-8 text-center text-white">
-          <div class="text-5xl mb-4">✨</div>
-          <h3 class="text-2xl font-bold">A message for you... Tap to reveal</h3>
+<body>
+    <div id="splashScreen">
+        <div class="splash-orb">
+            <span class="splash-logo">Aether</span>
         </div>
-        <div class="absolute inset-0 backface-hidden rotate-y-180 flex flex-col items-center justify-center bg-white border-2 border-teal-100 rounded-3xl p-8 shadow-xl text-center">
-          <p id="quoteText" class="text-2xl italic font-medium text-slate-800"></p>
-          <p id="quoteAuthor" class="mt-4 font-bold text-teal-600 uppercase tracking-widest text-sm"></p>
-          <button id="showActivitiesBtn" class="mt-6 px-10 py-3 bg-teal-600 text-white rounded-full font-bold">See Activities</button>
+        <div class="splash-text" id="breathingText">Breathe in...</div>
+    </div>
+
+    <main id="mainApp" class="app-container hidden">
+        <button id="openHistoryBtn" style="position: fixed; top: 20px; right: 20px; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 99px; cursor: pointer; z-index: 100; backdrop-filter: blur(10px); font-weight: 700; box-shadow: var(--shadow-premium);">📜 History</button>
+
+        <div id="historyOverlay" class="hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div class="glass-card" style="width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; padding: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="margin: 0;">Your Journey</h2>
+                    <button id="closeHistoryBtn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+                </div>
+                <div id="historyList"></div>
+                <button id="clearHistory" style="margin-top: 2rem; color: #ef4444; background: none; border: none; cursor: pointer; font-weight: 700; width: 100%;">Clear All History</button>
+            </div>
         </div>
-      </div>
-    </section>
 
-    <section id="activitySection" class="hidden lg:col-span-12 mt-6">
-      <div id="activityList" class="grid md:grid-cols-3 gap-6">
-        </div>
-    </section>
+        <section id="stage-input" class="stage">
+            <header style="margin-bottom: 3rem; text-align: center;">
+                <p style="font-weight: 700; color: #0d9488; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;">Student Wellness Companion</p>
+                <h1 style="font-size: 4rem; margin: 0.5rem 0; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(to right, #0d9488, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Aether Check-In
+                </h1>
+                <p style="color: #64748b; font-size: 1.1rem;">Log how you feel to reveal your custom path.</p>
+            </header>
 
-  </main>
+            <div class="glass-card">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">How are you feeling right now?</h2>
+                <div id="moodChoices" class="mood-grid"></div>
+                <textarea id="noteInput" placeholder="Optional: What is driving this mood today?" style="width:100%; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.25rem; margin-bottom: 1.5rem; font-family: inherit; font-size: 1rem; outline: none; min-height: 120px; background: rgba(255,255,255,0.5);"></textarea>
+                <button id="generateBtn" class="btn-primary">Get Recommendations</button>
+                <p id="statusText" class="status-msg">Consulting Aether...</p>
+            </div>
+        </section>
 
-  <script src="/static/app.js"></script>
+        <section id="stage-reveal" class="stage hidden">
+            <div class="perspective">
+                <div id="flipCard" class="flip-card-inner">
+                    <div class="flip-front">
+                        <span style="font-size: 4rem; margin-bottom: 1rem;">✨</span>
+                        <h3 style="margin: 0; font-size: 1.6rem;">A message for you...</h3>
+                        <p style="opacity: 0.8; font-weight: 500;">Tap to reveal</p>
+                    </div>
+                    <div class="flip-back">
+                        <p id="quoteText" style="font-size: 1.4rem; font-style: italic; line-height: 1.4; color: #1e293b;"></p>
+                        <p id="quoteAuthor" style="font-weight: 800; color: #0d9488; margin-top: 1.5rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em;"></p>
+                        <button id="showActivitiesBtn" class="btn-primary" style="margin-top: 2rem; max-width: 220px;">See Activities</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="stage-activities" class="stage hidden">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem; text-align: center; font-weight: 800;">Recommended for You</h2>
+
+            <div id="activityList" class="activity-grid activity-centering-container"></div>
+
+            <div class="glass-card" style="margin-top: 4rem;">
+                <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">Which activity did you try?</h3>
+                <select id="completedActivityInput" style="width: 100%; padding: 1.25rem; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 2.5rem; font-family: inherit; font-size: 1rem; outline: none; background: white; cursor: pointer;">
+                    <option value="None/Other">I did something else / Just checked in</option>
+                </select>
+
+                <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">How do you feel now?</h3>
+                <div id="afterMoodChoices" class="mood-grid"></div>
+            </div>
+        </section>
+
+        <section id="stage-final" class="stage hidden">
+            <div class="glass-card text-center" style="max-width: 550px; margin: 0 auto; text-align: center;">
+                <div id="finalEmoji" style="font-size: 4rem; margin-bottom: 1rem;">🌱</div>
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem; font-weight: 800;">Session Complete</h2>
+                <div id="finalSummary" style="color: #64748b; line-height: 1.6; font-size: 1.1rem; margin-bottom: 2.5rem;"></div>
+                <div class="flex-row" style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="restartBtn" class="btn-primary" style="background: rgba(15, 23, 42, 0.05); color: #1e293b; box-shadow: none; flex: 1;">New Session</button>
+                    <button id="shareBtn" class="btn-primary" style="flex: 1;">Share Journey</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
 </body>
 </html>
