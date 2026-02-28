@@ -6,46 +6,73 @@
   <title>Aether Wellness</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Space Grotesk", "sans-serif"],
+            body: ["Outfit", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
 </head>
-<body>
-  <div class="noise"></div>
-  <main class="app-shell">
-    <header class="hero">
-      <p class="eyebrow">Student Wellness Companion</p>
-      <h1>Aether Check-In</h1>
-      <p class="subtitle">Log how you feel, get focused recommendations, and track your mood arc over time.</p>
+<body class="min-h-screen bg-stone-50 font-body text-slate-800 antialiased">
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -top-28 -left-24 h-72 w-72 rounded-full bg-teal-200/45 blur-3xl"></div>
+    <div class="absolute top-24 right-0 h-80 w-80 rounded-full bg-sky-200/35 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-emerald-200/30 blur-3xl"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.65),transparent_62%)]"></div>
+  </div>
+
+  <main class="mx-auto grid w-[min(1100px,92vw)] grid-cols-1 gap-4 py-6 lg:grid-cols-12">
+    <header class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl shadow-slate-200/80 backdrop-blur lg:col-span-5">
+      <div class="absolute -right-10 -top-14 h-40 w-40 rounded-full bg-teal-100/80 blur-2xl"></div>
+      <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Student Wellness Companion</p>
+      <h1 class="mt-2 font-display text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">Aether Check-In</h1>
+      <p class="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">Log how you feel, get focused recommendations, and track your mood arc over time.</p>
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span class="rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">Daily check-ins</span>
+        <span class="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">Private by default</span>
+        <span class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Actionable steps</span>
+      </div>
     </header>
 
-    <section class="panel input-panel">
-      <h2>How are you feeling right now?</h2>
-      <div id="moodChoices" class="mood-grid"></div>
+    <section class="rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl shadow-slate-200/80 backdrop-blur lg:col-span-5">
+      <h2 class="font-display text-2xl font-semibold text-slate-900">How are you feeling right now?</h2>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">Pick the closest mood, then add context if you want better recommendations.</p>
+      <div id="moodChoices" class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4"></div>
 
-      <label for="noteInput">Optional note</label>
-      <textarea id="noteInput" rows="3" placeholder="What is driving this mood today?"></textarea>
+      <label for="noteInput" class="mt-5 block text-sm font-semibold text-slate-700">Optional note</label>
+      <textarea id="noteInput" rows="3" class="mt-2 w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-teal-400/80 focus:ring-2 focus:ring-teal-200" placeholder="What is driving this mood today?"></textarea>
 
-      <button id="generateBtn" class="btn primary">Get Recommendations</button>
-      <p id="statusText" class="status"></p>
+      <button id="generateBtn" class="mt-4 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-teal-500 via-sky-500 to-blue-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-sky-200 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">Get Recommendations</button>
+      <p id="statusText" class="mt-3 min-h-6 text-sm text-slate-500"></p>
     </section>
 
-    <section class="panel recommendations-panel">
-      <div class="panel-head">
-        <h2>Your Recommendations</h2>
-        <button id="refreshHistoryBtn" class="btn ghost">Refresh History</button>
+    <section class="rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl shadow-slate-200/80 backdrop-blur lg:col-span-7 lg:row-span-2">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 class="font-display text-2xl font-semibold text-slate-900">Your Recommendations</h2>
+        <button id="refreshHistoryBtn" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:border-teal-300 hover:text-teal-700">Refresh History</button>
       </div>
-      <article id="quoteCard" class="quote-card hidden"></article>
-      <div id="activityList" class="activity-list"></div>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">Built for right now: one quote and three practical actions.</p>
+      <article id="quoteCard" class="mt-4 hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4"></article>
+      <div id="activityList" class="mt-4 grid gap-3"></div>
 
-      <div id="afterMoodSection" class="after-mood hidden">
-        <h3>How do you feel after trying one activity?</h3>
-        <div id="afterMoodChoices" class="mood-grid"></div>
+      <div id="afterMoodSection" class="mt-5 hidden border-t border-dashed border-slate-200 pt-4">
+        <h3 class="font-display text-lg font-semibold text-slate-900">How do you feel after trying one activity?</h3>
+        <div id="afterMoodChoices" class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4"></div>
       </div>
     </section>
 
-    <section class="panel history-panel">
-      <h2>Mood History</h2>
-      <div id="historyList" class="history-list"></div>
+    <section class="rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-xl shadow-slate-200/80 backdrop-blur lg:col-span-12">
+      <h2 class="font-display text-2xl font-semibold text-slate-900">Mood History</h2>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">See how your mood shifts over time after trying activities.</p>
+      <div id="historyList" class="mt-4 grid gap-3 md:grid-cols-2"></div>
     </section>
   </main>
 
