@@ -2,5 +2,5 @@ flask
 flask-cors
 flask-sqlalchemy
 python-dotenv
-google-genai
+ollama
 requests
