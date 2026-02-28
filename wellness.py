@@ -55,10 +55,12 @@ def get_recommendations():
     mood = data.get('mood', 'Okay')
     note = data.get('note', '')
 
-    user_prompt = f"The user is feeling: {mood}. Personal note: {note if note else 'No note provided.'}"
+    # Adding a unique timestamp forces the AI to treat every request as brand new
+    unique_seed = datetime.now().strftime("%H:%M:%S")
+    user_prompt = f"Time: {unique_seed}. Mood: {mood}. Personal note: {note if note else 'No note provided.'}"
 
     try:
-        # UPDATED: Added options (temperature) to force variety and creativity
+        # UPDATED: Added top_p and higher temperature for maximum variety
         response = ollama.chat(
             model='llama3.2',
             messages=[
@@ -67,8 +69,9 @@ def get_recommendations():
             ],
             format='json',
             options={
-                'temperature': 0.8,  # Higher value = more variety/creativity
-                'num_predict': 400    # Prevents the model from cutting off early
+                'temperature': 0.9,  # Increased for variety
+                'top_p': 0.9,        # Encourages more diverse word choices
+                'num_predict': 400
             }
         )
 
