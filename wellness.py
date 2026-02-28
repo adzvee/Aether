@@ -27,7 +27,6 @@ class MoodLog(db.Model):
 with app.app_context():
     db.create_all()
 
-# System Instruction for the Local Model
 SYSTEM_PROMPT = """You are a warm, supportive wellness companion for students.
 The user will provide their current mood and an optional personal note.
 Respond with ONLY valid JSON in this exact format:
@@ -64,11 +63,10 @@ def get_recommendations():
             format='json' # This tells Llama to output structured JSON
         )
 
-        # Ollama returns a different structure than Gemini
+
         response_text = response['message']['content']
         response_data = json.loads(response_text)
 
-        # Logic to flag music suggestions for the frontend
         for activity in response_data.get('activities', []):
             title_lower = activity.get('title', '').lower()
             if any(word in title_lower for word in ["music", "playlist", "listen"]):
